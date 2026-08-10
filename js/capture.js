@@ -1,8 +1,3 @@
-/* =============================================================
-   BlurSnap.Capture
-   Countdown, efek flash + shutter, dan pengambilan frame kamera
-   ke canvas sesuai resolusi, filter, dan blur aktif.
-============================================================= */
 window.BlurSnap = window.BlurSnap || {};
 
 BlurSnap.Capture = (function () {
