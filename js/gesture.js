@@ -1,9 +1,3 @@
-/* =============================================================
-   BlurSnap.Gesture
-   Deteksi gesture ✌ (peace sign) real-time dari 21 titik landmark
-   tangan (MediaPipe Hands), dengan state machine + debounce agar
-   blur tidak berkedip.
-============================================================= */
 window.BlurSnap = window.BlurSnap || {};
 
 BlurSnap.Gesture = (function () {
