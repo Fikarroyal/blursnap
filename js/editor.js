@@ -1,8 +1,3 @@
-/* =============================================================
-   BlurSnap.Editor
-   Halaman preview + editor: brightness/contrast/saturation/
-   exposure/sharpness/blur, before-after compare, save/download/share.
-============================================================= */
 window.BlurSnap = window.BlurSnap || {};
 
 BlurSnap.Editor = (function () {
