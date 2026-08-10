@@ -1,7 +1,3 @@
-/* =============================================================
-   BlurSnap.Blur
-   Mengelola intensitas blur (0-30px), preset, dan status gesture-blur.
-============================================================= */
 window.BlurSnap = window.BlurSnap || {};
 
 BlurSnap.Blur = (function () {
