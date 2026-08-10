@@ -1,8 +1,3 @@
-/* =============================================================
-   BlurSnap App — orkestrator utama.
-   Menghubungkan Settings, Filters, Blur, Camera, Gesture, Capture,
-   Editor, dan Gallery ke elemen-elemen UI di index.html.
-============================================================= */
 window.BlurSnap = window.BlurSnap || {};
 
 (function () {
