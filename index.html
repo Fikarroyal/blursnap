@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Blur Snap</title>
+<meta name="description" content="Kamera pintar berbasis gesture. Tunjukkan gesture ✌ untuk mengaktifkan blur secara otomatis.">
+
+<link rel="icon" href="assets/icon.jpeg" type="image/jpeg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/animations.css">
+<link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+
+<!-- ================= SPLASH SCREEN ================= -->
+<section id="splash-screen" class="splash-screen" aria-label="Layar pembuka">
+  <div class="splash-glow"></div>
+  <div class="splash-content">
+    <div class="splash-logo-wrap">
+      <img src="assets/logo.svg" alt="" class="splash-logo" id="splash-logo">
+      <div class="splash-scan-ring"></div>
+    </div>
+    <h1 class="splash-title">Blur <span>Snap</span></h1>
+    <p class="splash-caption" id="splash-caption">Preparing Your Smart Camera</p>
+    <div class="splash-loader" role="progressbar" aria-label="Memuat aplikasi">
+      <span></span>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ONBOARDING ================= -->
+<section id="onboarding-screen" class="onboarding-screen" hidden aria-label="Panduan awal">
+  <button class="btn-text onboarding-skip" id="onboarding-skip" type="button">Lewati</button>
+  <div class="onboarding-track" id="onboarding-track">
+    <article class="onboarding-slide active" data-slide="0">
+      <div class="onboarding-art">
+        <span class="art-ring-outer"></span>
+        <span class="art-ring-inner"></span>
+        <span class="art-icon" data-lucide="camera"></span>
+      </div>
+      <h2>Open Your Camera</h2>
+      <p>Buka kamera langsung dari browser, tanpa perlu instalasi aplikasi.</p>
+    </article>
+    <article class="onboarding-slide" data-slide="1">
+      <div class="onboarding-art">
+        <span class="art-ring-outer"></span>
+        <span class="art-ring-inner"></span>
+        <span class="art-icon" data-lucide="hand"></span>
+      </div>
+      <h2>Show the Peace Gesture</h2>
+      <p>Tunjukkan emotemu ✌🏻 ke kamera dan sistem akan mengaktifkan efek blur secara otomatis.</p>
+    </article>
+    <article class="onboarding-slide" data-slide="2">
+      <div class="onboarding-art">
+        <span class="art-ring-outer"></span>
+        <span class="art-ring-inner"></span>
+        <span class="art-icon" data-lucide="aperture"></span>
+      </div>
+      <h2>Capture Your Perfect Effect</h2>
+      <p>Ambil foto dengan efek blur, filter, dan resolusi yang sudah kamu atur sendiri.</p>
+    </article>
+  </div>
+  <div class="onboarding-footer">
+    <div class="onboarding-dots" id="onboarding-dots">
+      <span class="dot active" data-dot="0"></span>
+      <span class="dot" data-dot="1"></span>
+      <span class="dot" data-dot="2"></span>
+    </div>
+    <button class="btn-primary" id="onboarding-next" type="button">Lanjut</button>
+  </div>
+</section>
+
+<!-- ================= PERMISSION / COMPAT STATES ================= -->
+<section id="permission-screen" class="state-screen" hidden aria-label="Izin kamera">
+  <div class="state-icon" data-lucide="video-off"></div>
+  <h2 id="permission-title">Izin Kamera Diperlukan</h2>
+  <p id="permission-desc">Blur Snap membutuhkan akses kamera untuk mendeteksi gesture dan mengambil foto. Aktifkan izin kamera pada browser kamu.</p>
+  <button class="btn-primary" id="permission-retry" type="button">
+    <span data-lucide="rotate-ccw"></span> Coba Lagi
+  </button>
+</section>
+
+<section id="incompatible-screen" class="state-screen" hidden aria-label="Browser tidak didukung">
+  <div class="state-icon" data-lucide="alert-triangle"></div>
+  <h2>Browser Tidak Didukung</h2>
+  <p>Perangkat atau browser kamu tidak mendukung akses kamera. Gunakan Chrome, Edge, Firefox, atau Safari versi terbaru.</p>
+</section>
+
+<!-- ================= MAIN APP SHELL ================= -->
+<div id="app-shell" class="app-shell" hidden>
+
+  <!-- Desktop sidebar -->
+  <nav class="sidebar" aria-label="Navigasi utama">
+    <div class="sidebar-logo">
+      <img src="assets/logo.svg" alt="Blur Snap">
+    </div>
+    <button class="nav-item active" data-view="camera" type="button" data-tooltip="Camera">
+      <span data-lucide="camera"></span>
+    </button>
+    <button class="nav-item" data-view="filters" type="button" data-tooltip="Filters">
+      <span data-lucide="sparkles"></span>
+    </button>
+    <button class="nav-item" data-view="gallery" type="button" data-tooltip="Gallery">
+      <span data-lucide="image"></span>
+    </button>
+    <button class="nav-item" data-view="settings" type="button" data-tooltip="Settings">
+      <span data-lucide="settings"></span>
+    </button>
+    <button class="nav-item theme-toggle" id="theme-toggle-desktop" type="button" data-tooltip="Ganti Tema">
+      <span data-lucide="moon"></span>
+    </button>
+  </nav>
+
+  <main class="app-main">
+
+    <!-- ---------- VIEW: CAMERA ---------- -->
+    <section class="view view-camera active" id="view-camera" aria-label="Kamera">
+      <div class="camera-frame" id="camera-frame">
+        <video id="camera-video" playsinline autoplay muted></video>
+        <canvas id="landmark-canvas" aria-hidden="true"></canvas>
+        <canvas id="capture-canvas" class="visually-hidden" aria-hidden="true"></canvas>
+
+        <div class="hud-corner hud-tl"></div>
+        <div class="hud-corner hud-tr"></div>
+        <div class="hud-corner hud-bl"></div>
+        <div class="hud-corner hud-br"></div>
+        <div class="scan-line" id="scan-line"></div>
+        <div class="camera-grid" id="camera-grid" hidden>
+          <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+        </div>
+
+        <div class="camera-top-bar">
+          <div class="chip chip-status" id="camera-status-chip">
+            <span class="dot-live"></span> Live
+          </div>
+          <div class="chip chip-res" id="resolution-badge">HD · 1280×720</div>
+          <div class="chip chip-fps" id="fps-badge">-- FPS</div>
+        </div>
+
+        <div class="gesture-status" id="gesture-status">
+          <span data-lucide="hand" class="gesture-icon"></span>
+          <!-- Gunakan &nbsp; untuk memaksakan spasi mutlak setelah emoji -->
+          <span class="gesture-text" id="gesture-text">Show ✌🏻&nbsp; Gesture to Activate Blur</span>
+          <div class="confidence-ring" id="confidence-ring">
+            <svg viewBox="0 0 40 40"><circle class="ring-track" cx="20" cy="20" r="17"/><circle class="ring-fill" id="ring-fill" cx="20" cy="20" r="17"/></svg>
+          </div>
+        </div>
+
+        <div class="countdown-overlay" id="countdown-overlay" hidden>
+          <span id="countdown-number">3</span>
+        </div>
+        <div class="flash-overlay" id="flash-overlay"></div>
+
+        <div id="camera-empty-state" class="camera-empty" hidden>
+          <div class="loading-skeleton"></div>
+          <p>Menyalakan kamera…</p>
+        </div>
+      </div>
+
+      <!-- quick filter strip -->
+      <div class="quick-filter-strip" id="quick-filter-strip" role="tablist" aria-label="Pilihan filter cepat"></div>
+
+      <div class="camera-controls">
+        <button class="ctrl-btn" id="btn-switch-camera" type="button" data-tooltip="Ganti Kamera" aria-label="Ganti kamera depan/belakang">
+          <span data-lucide="flip-horizontal"></span>
+        </button>
+
+        <div class="capture-wrap">
+          <button class="capture-btn" id="btn-capture" type="button" aria-label="Ambil foto">
+            <span class="capture-btn-inner"></span>
+          </button>
+        </div>
+
+        <button class="ctrl-btn" id="btn-quick-panel" type="button" data-tooltip="Kontrol Cepat" aria-label="Buka panel kontrol cepat">
+          <span data-lucide="sliders-horizontal"></span>
+        </button>
+      </div>
+
+      <div class="camera-secondary-row">
+        <button class="mini-btn" id="btn-countdown" type="button" data-tooltip="Countdown">
+          <span data-lucide="timer"></span><span id="countdown-label">Off</span>
+        </button>
+        <button class="mini-btn" id="btn-grid-toggle" type="button" data-tooltip="Grid 3×3">
+          <span data-lucide="grid-3x3"></span>
+        </button>
+        <button class="mini-btn" id="btn-fullscreen" type="button" data-tooltip="Fullscreen">
+          <span data-lucide="maximize"></span>
+        </button>
+        <button class="mini-btn" id="btn-landmarks-toggle" type="button" data-tooltip="Landmark Tangan">
+          <span data-lucide="scan-line"></span>
+        </button>
+      </div>
+    </section>
+
+    <!-- ---------- VIEW: FILTERS ---------- -->
+    <section class="view view-filters" id="view-filters" aria-label="Filter dan kontrol blur">
+      <header class="view-header">
+        <h1>Filters &amp; Blur</h1>
+        <p>Atur tampilan kamera secara real-time.</p>
+      </header>
+
+      <div class="panel">
+        <div class="panel-title"><span data-lucide="wand-sparkles"></span> Filter Kamera</div>
+        <div class="filter-gallery" id="filter-gallery"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title"><span data-lucide="droplets"></span> Smart Blur Control</div>
+        <div class="slider-row">
+          <label for="blur-slider">Intensitas Blur</label>
+          <span class="slider-value" id="blur-value">0 px</span>
+        </div>
+        <input type="range" id="blur-slider" min="0" max="20" step="1" value="0" aria-label="Intensitas blur">
+        <div class="preset-row">
+          <button class="preset-chip" data-preset="soft" type="button">Soft</button>
+          <button class="preset-chip" data-preset="balanced" type="button">Balanced</button>
+          <button class="preset-chip" data-preset="strong" type="button">Strong</button>
+          <button class="preset-chip" data-preset="cinematic" type="button">Cinematic</button>
+          <button class="preset-chip preset-reset" data-preset="reset" type="button"><span data-lucide="rotate-ccw"></span></button>
+        </div>
+        <div class="slider-row" style="margin-top:6px;"><label>Blur Mode</label></div>
+        <div class="segmented" id="blur-mode-segmented">
+          <button class="segment active" data-blur-mode="gesture-on" type="button">Gesture ON</button>
+          <button class="segment" data-blur-mode="manual" type="button">Manual</button>
+          <button class="segment" data-blur-mode="gesture-off" type="button">Gesture OFF</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title"><span data-lucide="scan-line"></span> Sensitivitas Gesture</div>
+        <div class="segmented" id="sensitivity-segmented">
+          <button class="segment" data-sensitivity="low" type="button">Low</button>
+          <button class="segment" data-sensitivity="medium" type="button">Medium</button>
+          <button class="segment active" data-sensitivity="high" type="button">High</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title"><span data-lucide="aperture"></span> Resolusi &amp; Kualitas</div>
+        <div class="select-row">
+          <label for="resolution-select">Resolusi</label>
+          <select id="resolution-select">
+            <option value="sd">SD · 640×480</option>
+            <option value="hd" selected>HD · 1280×720</option>
+            <option value="fhd">Full HD · 1920×1080</option>
+            <option value="2k">2K · 2560×1440</option>
+            <option value="4k">4K · 3840×2160</option>
+          </select>
+        </div>
+        <div class="select-row">
+          <label for="quality-select">Kualitas Foto</label>
+          <select id="quality-select">
+            <option value="low">Low</option>
+            <option value="standard" selected>Standard</option>
+            <option value="high">High</option>
+            <option value="ultra">Ultra</option>
+          </select>
+        </div>
+        <div class="info-grid">
+          <div><span>Resolusi Aktif</span><strong id="info-resolution">1280×720</strong></div>
+          <div><span>Rasio Aspek</span><strong id="info-ratio">16:9</strong></div>
+          <div><span>Estimasi Ukuran</span><strong id="info-size">~450 KB</strong></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- VIEW: GALLERY ---------- -->
+    <section class="view view-gallery" id="view-gallery" aria-label="Galeri foto">
+      <header class="view-header view-header--with-action">
+        <div class="view-header-text">
+          <h1>Gallery</h1>
+          <p>Semua hasil jepretan tersimpan secara lokal di perangkatmu.</p>
+        </div>
+        <button class="btn-danger-ghost" id="btn-clear-gallery" type="button">
+          <span data-lucide="trash-2"></span> Clear Gallery
+        </button>
+      </header>
+      <div class="gallery-grid" id="gallery-grid"></div>
+      <div class="gallery-empty" id="gallery-empty">
+        <span data-lucide="image-off"></span>
+        <p>Belum ada foto. Ambil jepretan pertamamu di tab Camera.</p>
+      </div>
+    </section>
+
+    <!-- ---------- VIEW: SETTINGS ---------- -->
+    <section class="view view-settings" id="view-settings" aria-label="Pengaturan">
+      <header class="view-header">
+        <h1>Settings</h1>
+        <p>Sesuaikan pengalaman kamera sesuai kebutuhanmu.</p>
+      </header>
+
+      <div class="panel">
+        <div class="panel-title"><span data-lucide="camera"></span> Kamera</div>
+        <label class="option-row">
+          <span>Kamera Default</span>
+          <select id="setting-default-camera">
+            <option value="user">Front Camera</option>
+            <option value="environment">Back Camera</option>
+          </select>
+        </label>
+        <label class="switch-row">
+          <span>Mirror Camera</span>
+          <span class="switch"><input type="checkbox" id="setting-mirror" checked><span class="switch-track"></span></span>
+        </label>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title"><span data-lucide="hand"></span> Gesture</div>
+        <label class="switch-row">
+          <span>Gesture Detection</span>
+          <span class="switch"><input type="checkbox" id="setting-gesture-enabled" checked><span class="switch-track"></span></span>
+        </label>
+        <label class="switch-row">
+          <span>Tampilkan Hand Landmarks</span>
+          <span class="switch"><input type="checkbox" id="setting-show-landmarks"><span class="switch-track"></span></span>
+        </label>
+        <label class="switch-row">
+          <span>Auto Blur saat Gesture Hilang</span>
+          <span class="switch"><input type="checkbox" id="setting-auto-blur" checked><span class="switch-track"></span></span>
+        </label>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title"><span data-lucide="timer"></span> Capture</div>
+        <label class="option-row">
+          <span>Countdown Default</span>
+          <select id="setting-countdown">
+            <option value="0">Off</option>
+            <option value="3">3 detik</option>
+            <option value="5">5 detik</option>
+            <option value="10">10 detik</option>
+          </select>
+        </label>
+        <label class="option-row">
+          <span>Kualitas Foto</span>
+          <select id="setting-photo-quality">
+            <option value="low">Low</option>
+            <option value="standard" selected>Standard</option>
+            <option value="high">High</option>
+            <option value="ultra">Ultra</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title"><span data-lucide="palette"></span> Tampilan</div>
+        <div class="segmented" id="theme-segmented">
+          <button class="segment" data-theme-opt="dark" type="button">Dark</button>
+          <button class="segment" data-theme-opt="light" type="button">Light</button>
+          <button class="segment active" data-theme-opt="system" type="button">System</button>
+        </div>
+      </div>
+
+      <button class="btn-danger-ghost full-width" id="btn-reset-settings" type="button">
+        <span data-lucide="rotate-ccw"></span> Reset Semua Pengaturan
+      </button>
+
+      <p class="app-version">Blur Snap by Fikarroyal · v1.0 · Privacy Policy</p>
+    </section>
+
+  </main>
+
+  <!-- Mobile bottom nav -->
+  <nav class="bottom-nav" aria-label="Navigasi bawah">
+    <button class="nav-item active" data-view="camera" type="button">
+      <span data-lucide="camera"></span><small>Camera</small>
+    </button>
+    <button class="nav-item" data-view="filters" type="button">
+      <span data-lucide="sparkles"></span><small>Filters</small>
+    </button>
+    <button class="nav-item" data-view="gallery" type="button">
+      <span data-lucide="image"></span><small>Gallery</small>
+    </button>
+    <button class="nav-item" data-view="settings" type="button">
+      <span data-lucide="settings"></span><small>Settings</small>
+    </button>
+  </nav>
+</div>
+
+<!-- ================= PHOTO PREVIEW / EDITOR ================= -->
+<section id="preview-editor" class="preview-editor" hidden aria-label="Preview dan editor foto">
+  <div class="preview-stage">
+    <img id="preview-image-after" alt="Hasil foto" class="preview-img">
+    <button class="icon-btn preview-close" id="btn-preview-close" type="button" aria-label="Tutup preview">
+      <span data-lucide="x"></span>
+    </button>
+  </div>
+
+  <div class="editor-panel" id="editor-panel">
+    <div class="editor-tabs">
+      <button class="editor-tab active" data-tab="adjust" type="button">Adjust</button>
+      <button class="editor-tab" data-tab="info" type="button">Info</button>
+    </div>
+
+    <div class="editor-body" id="editor-body-adjust">
+      <div class="edit-slider"><label>Brightness</label><input type="range" id="edit-brightness" min="-100" max="100" value="0"></div>
+      <div class="edit-slider"><label>Contrast</label><input type="range" id="edit-contrast" min="-100" max="100" value="0"></div>
+      <div class="edit-slider"><label>Saturation</label><input type="range" id="edit-saturation" min="-100" max="100" value="0"></div>
+      <div class="edit-slider"><label>Exposure</label><input type="range" id="edit-exposure" min="-100" max="100" value="0"></div>
+      <div class="edit-slider"><label>Sharpness</label><input type="range" id="edit-sharpness" min="0" max="100" value="0"></div>
+      <div class="edit-slider"><label>Blur</label><input type="range" id="edit-blur" min="0" max="30" value="0"></div>
+      <button class="btn-text" id="btn-editor-reset" type="button"><span data-lucide="rotate-ccw"></span> Reset Editor</button>
+    </div>
+
+    <div class="editor-body" id="editor-body-info" hidden>
+      <div class="info-grid">
+        <div><span>Resolusi</span><strong id="meta-resolution">-</strong></div>
+        <div><span>Filter</span><strong id="meta-filter">-</strong></div>
+        <div><span>Blur Awal</span><strong id="meta-blur">-</strong></div>
+        <div><span>Waktu</span><strong id="meta-time">-</strong></div>
+      </div>
+    </div>
+
+    <div class="editor-actions">
+      <button class="mini-btn" id="btn-retake" type="button" data-tooltip="Retake"><span data-lucide="rotate-ccw"></span></button>
+      <button class="mini-btn" id="btn-save-gallery" type="button" data-tooltip="Save"><span data-lucide="save"></span></button>
+      <button class="btn-primary" id="btn-download" type="button"><span data-lucide="download"></span> Download</button>
+      <button class="mini-btn" id="btn-share" type="button" data-tooltip="Share"><span data-lucide="share-2"></span></button>
+    </div>
+  </div>
+</section>
+
+<!-- ================= MODALS ================= -->
+<div class="modal-backdrop" id="modal-backdrop" hidden>
+  <div class="modal-box" id="modal-box" role="dialog" aria-modal="true">
+    <h3 id="modal-title">Konfirmasi</h3>
+    <p id="modal-desc">Apakah kamu yakin?</p>
+    <div class="modal-actions">
+      <button class="btn-ghost" id="modal-cancel" type="button">Batal</button>
+      <button class="btn-danger" id="modal-confirm" type="button">Hapus</button>
+    </div>
+  </div>
+</div>
+
+<div class="photo-detail-modal" id="photo-detail-modal" hidden>
+  <div class="photo-detail-box">
+    <button class="icon-btn" id="photo-detail-close" type="button" aria-label="Tutup"><span data-lucide="x"></span></button>
+    <img id="photo-detail-img" alt="Detail foto">
+    <div class="info-grid">
+      <div><span>Resolusi</span><strong id="detail-resolution">-</strong></div>
+      <div><span>Filter</span><strong id="detail-filter">-</strong></div>
+      <div><span>Blur</span><strong id="detail-blur">-</strong></div>
+      <div><span>Waktu</span><strong id="detail-time">-</strong></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-ghost" id="photo-detail-delete" type="button"><span data-lucide="trash-2"></span> Hapus</button>
+      <button class="btn-primary" id="photo-detail-download" type="button"><span data-lucide="download"></span> Download</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast container -->
+<div class="toast-container" id="toast-container" aria-live="polite"></div>
+
+<!-- ================= SCRIPTS ================= -->
+<script src="https://unpkg.com/lucide@0.446.0/dist/umd/lucide.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+
+<script src="js/settings.js"></script>
+<script src="js/filters.js"></script>
+<script src="js/blur.js"></script>
+<script src="js/camera.js"></script>
+<script src="js/gesture.js"></script>
+<script src="js/capture.js"></script>
+<script src="js/editor.js"></script>
+<script src="js/gallery.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

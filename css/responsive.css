@@ -1,0 +1,109 @@
+/* =============================================================
+   MOBILE (default) 320px – 767px — styles already mobile-first above
+============================================================= */
+.sidebar{ display:none; }
+.bottom-nav{ display:flex; }
+
+.view{ overflow-x: hidden; }
+
+@media (max-width: 480px){
+  .camera-top-bar{ left:44px; right:44px; gap:6px; }
+  .chip{ font-size:10.5px; padding:5px 8px; }
+  #fps-badge{ display:none; }
+  .editor-actions{ flex-wrap:wrap; }
+  .editor-actions .btn-primary{ order:1; flex-basis:100%; }
+  .gesture-status{ max-width: 88%; padding: 8px 12px; }
+  .gesture-text{ font-size:11.5px; }
+}
+
+@media (max-width: 380px){
+  .capture-btn{ width:68px; height:68px; }
+  .capture-btn-inner{ width:52px; height:52px; }
+  .camera-secondary-row{ gap:6px; }
+  .mini-btn span:not([data-lucide]){ display:none; }
+  .mini-btn{ padding:9px 10px; }
+  .filter-gallery{ grid-template-columns: repeat(auto-fill, minmax(80px,1fr)); }
+  .info-grid{ grid-template-columns: repeat(2,1fr); }
+}
+
+/* =============================================================
+   TABLET 768px – 1023px
+============================================================= */
+@media (min-width: 768px){
+  .view{ padding: 22px 32px calc(var(--nav-h) + 22px); }
+  .view-header--with-action{ flex-direction:row; align-items:center; justify-content:space-between; }
+  .onboarding-slide{ padding: 60px; }
+  .onboarding-art{ width:220px; height:220px; }
+  .onboarding-art .art-icon{ width:78px; height:78px; }
+  .filter-gallery{ grid-template-columns: repeat(auto-fill, minmax(120px,1fr)); }
+  .gallery-grid{ grid-template-columns: repeat(auto-fill, minmax(160px,1fr)); }
+  .panel{ padding:22px; }
+  #countdown-number{ font-size:150px; }
+}
+
+/* =============================================================
+   DESKTOP 1024px and up
+============================================================= */
+@media (min-width: 1024px){
+  .sidebar{ display:flex; }
+  .bottom-nav{ display:none; }
+  .view{ padding: 30px 40px; max-width:1180px; margin:0 auto; width:100%; }
+  .view-camera{ padding-bottom:30px; flex-direction:row; flex-wrap:wrap; align-content:flex-start; }
+  .camera-frame{ width:100%; min-height:60vh; }
+  .quick-filter-strip{ width:100%; }
+  .camera-controls{ width:100%; max-width:420px; margin: 0 auto; }
+  .camera-secondary-row{ width:100%; justify-content:center; }
+
+  .view-filters.active, .view-gallery.active, .view-settings.active{ display:grid; grid-template-columns: 1fr 1fr; gap: 0 24px; align-content:start; }
+  .view-header{ grid-column: 1 / -1; }
+  .gallery-grid, .gallery-empty{ grid-column: 1 / -1; }
+  .gallery-grid{ grid-template-columns: repeat(auto-fill, minmax(180px,1fr)); }
+
+  .preview-editor{ flex-direction:row; }
+  .preview-stage{ flex:1.4; }
+  .editor-panel{ width:360px; max-height:none; border-top:none; border-left:1px solid var(--border); }
+  .preview-img{ max-height:78vh; }
+
+  #countdown-number{ font-size:180px; }
+}
+
+@media (min-width:1024px) and (max-width:1279px){
+  .view-filters.active, .view-gallery.active, .view-settings.active{ grid-template-columns: 1fr; }
+}
+
+/* =============================================================
+   FULLSCREEN (camera-frame)
+   - .camera-frame:fullscreen dst → Fullscreen API native (Android/desktop)
+   - .pseudo-fullscreen → fallback CSS untuk browser tanpa dukungan
+     Fullscreen API pada elemen non-video (khususnya Safari iOS/iPadOS)
+============================================================= */
+.camera-frame:fullscreen,
+.camera-frame:-webkit-full-screen,
+.camera-frame:-moz-full-screen,
+.camera-frame:-ms-fullscreen,
+.camera-frame.pseudo-fullscreen{
+  width: 100vw; height: 100vh; height: 100dvh;
+  min-height: 0; max-width: none;
+  border-radius: 0; border: none; box-shadow: none; margin: 0;
+}
+
+.camera-frame.pseudo-fullscreen{
+  position: fixed; inset: 0; z-index: 2000;
+}
+
+html.pseudo-fullscreen-lock,
+html.pseudo-fullscreen-lock body{ overflow: hidden; height: 100%; }
+
+.pseudo-fullscreen-exit{
+  position: absolute; top: calc(10px + env(safe-area-inset-top)); right: 52px; z-index: 10;
+  width: 34px; height: 34px; padding: 0; border-radius: 50%; border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(7,10,18,0.55); backdrop-filter: blur(10px);
+  color: #fff; display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: background .15s ease, border-color .15s ease, transform .1s ease;
+}
+.pseudo-fullscreen-exit [data-lucide]{ width:18px; height:18px; display:block; }
+.pseudo-fullscreen-exit:hover,
+.pseudo-fullscreen-exit:active{
+  background: rgba(220,38,38,0.85); border-color: rgba(220,38,38,0.9);
+}
+.pseudo-fullscreen-exit:active{ transform: scale(0.92); }
