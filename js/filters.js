@@ -1,7 +1,3 @@
-/* =============================================================
-   BlurSnap.Filters
-   10 filter kamera real-time berbasis CSS/Canvas filter string.
-============================================================= */
 window.BlurSnap = window.BlurSnap || {};
 
 BlurSnap.Filters = (function () {
