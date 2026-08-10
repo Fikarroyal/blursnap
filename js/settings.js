@@ -1,7 +1,3 @@
-/* =============================================================
-   BlurSnap.Settings
-   Menyimpan dan memuat preferensi pengguna dari localStorage.
-============================================================= */
 window.BlurSnap = window.BlurSnap || {};
 
 BlurSnap.Settings = (function () {
