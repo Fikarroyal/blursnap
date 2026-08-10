@@ -1,8 +1,3 @@
-/* =============================================================
-   BlurSnap.Gallery
-   Menyimpan hasil foto secara lokal memakai IndexedDB, menampilkan
-   grid galeri, detail foto, download, dan hapus (single/all).
-============================================================= */
 window.BlurSnap = window.BlurSnap || {};
 
 BlurSnap.Gallery = (function () {
