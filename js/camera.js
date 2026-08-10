@@ -1,8 +1,3 @@
-/* =============================================================
-   BlurSnap.Camera
-   Akses kamera via getUserMedia, ganti kamera, resolusi, mirror,
-   fullscreen, dan grid 3x3.
-============================================================= */
 window.BlurSnap = window.BlurSnap || {};
 
 BlurSnap.Camera = (function () {
